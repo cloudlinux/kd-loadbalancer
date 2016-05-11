@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  name: nikolay-owncloud-rc
+spec:
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: nikolay-owncloud
+    spec:
+      containers:
+      - name: nikolay-owncloud
+        image: owncloud
+        ports:
+        - containerPort: 80

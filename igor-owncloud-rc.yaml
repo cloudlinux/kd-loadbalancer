@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  name: igor-owncloud-rc
+spec:
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: igor-owncloud
+    spec:
+      containers:
+      - name: igor-owncloud
+        image: owncloud
+        ports:
+        - containerPort: 80
