@@ -16,22 +16,23 @@
   $ kubectl create -f nikolay-owncloud-svc.yaml
   ```
 1. Create a Secret with an trusted SSL certificate and a key:
+  
   First you should generate SSL by [letsencrypt.org](https://letsencrypt.org/), for example:
   ```
   $ git clone https://github.com/letsencrypt/letsencrypt
   $ cd letsencrypt
   $ ./letsencrypt-auto --help
   $ ./letsencrypt-auto certonly --standalone --email admin@example.com -d nikolay.example.com
-  $ ./letsencrypt-auto certonly --email admin@example.com -d igor.example.com
+  $ ./letsencrypt-auto certonly --standalone --email admin@example.com -d igor.example.com
   ```
-  You can find certificates in the folder - /etc/letsencrypt/live/nikolay.example.com or /etc/letsencrypt/live/igor.example.com
+  You can find certificates in the folder - ```/etc/letsencrypt/live/nikolay.example.com``` or ```/etc/letsencrypt/live/igor.example.com```
 
-  Second you should create secrets
+  Second you should create secrets:
   ```
   $ kubectl create secret generic nikolay-owncloud-secret --from-file=tls.key=nikolay.priv.pem --from-file=tls.crt=nikolay.cert.pem
   $ kubectl create secret generic igor-owncloud-secret --from-file=tls.key=igor.priv.pem --from-file=tls.crt=igor.cert.pem
   ```
-  *.priv.pem, *.cert.pem - files after generate certs for own domain by [letsencrypt.org](https://letsencrypt.org/).
+  ```*.priv.pem, *.cert.pem``` - files after generate certs for own domain by [letsencrypt.org](https://letsencrypt.org/).
 
 1. Create Ingress Resource:
   ```
