@@ -1,0 +1,17 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: igor-owncloud-ingress
+spec:
+  tls:
+  - hosts:
+    - igor.diveinto.ru
+    secretName: igor-owncloud-secret
+  rules:
+  - host: igor.diveinto.ru
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: igor-owncloud-svc
+          servicePort: 80
