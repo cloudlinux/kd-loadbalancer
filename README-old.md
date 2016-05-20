@@ -22,9 +22,11 @@
   $ git clone https://github.com/letsencrypt/letsencrypt
   $ cd letsencrypt
   $ ./letsencrypt-auto --help
-  $ ./letsencrypt-auto certonly --standalone --email admin@example.com -d nikolay.example.com
-  $ ./letsencrypt-auto certonly --standalone --email admin@example.com -d igor.example.com
+  $ ./letsencrypt-auto certonly --standalone --email admin@example.com -d nikolay.diveinto.ru
+  $ ./letsencrypt-auto certonly --standalone --email admin@example.com -d igor.diveinto.ru
   ```
+  **Important:** In the examples I uses my domain name `diveinto.ru`, you should use own domain name, letsencrypt doesn't work if domain name will not be linked with your ip address.
+  
   You can find certificates in the folder - ```/etc/letsencrypt/live/nikolay.example.com``` or ```/etc/letsencrypt/live/igor.example.com```
 
   Second you should create secrets:
