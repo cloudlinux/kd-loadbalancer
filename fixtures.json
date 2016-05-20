@@ -1,0 +1,17 @@
+{
+  "ingress-rules": [
+    [
+      "a-18daf306-0",
+      "a-18daf306-0.diveinto.ru",
+      "a-18daf306-owncloud"
+    ],
+    [
+      "a-18daf306-1",
+      "a-18daf306-1.diveinto.ru",
+      "a-18daf306-owncloud"
+    ]
+  ],
+  "services": [
+    "a-18daf306-owncloud"
+  ]
+}

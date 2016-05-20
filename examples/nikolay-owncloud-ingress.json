@@ -1,0 +1,1 @@
+{"kind": "Ingress", "spec": {"tls": [{"hosts": ["nikolay.diveinto.ru"], "secretName": "nikolay-owncloud-secret"}], "rules": [{"host": "nikolay.diveinto.ru", "http": {"paths": [{"path": "/", "backend": {"serviceName": "nikolay-owncloud-svc", "servicePort": 80}}]}}]}, "apiVersion": "extensions/v1beta1", "metadata": {"name": "nikolay-owncloud-ingress"}}

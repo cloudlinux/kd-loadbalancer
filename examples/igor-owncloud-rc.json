@@ -1,0 +1,1 @@
+{"kind": "ReplicationController", "spec": {"template": {"spec": {"containers": [{"image": "owncloud", "name": "igor-owncloud", "ports": [{"containerPort": 80}]}]}, "metadata": {"labels": {"app": "igor-owncloud"}}}, "replicas": 1}, "apiVersion": "v1", "metadata": {"name": "igor-owncloud-rc"}}

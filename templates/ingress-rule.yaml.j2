@@ -1,0 +1,26 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: {{ name }}-ingress
+  type: letsencrypt
+spec:
+  tls:
+  - hosts:
+    - {{ host }}
+    secretName: {{ name }}-secret
+  rules:
+  - host: {{ host }}
+    http:
+      paths:
+      - path: /.well-known/acme-challenge
+        backend:
+          serviceName: certbot-svc
+          servicePort: 80
+      - path: /.certs
+        backend:
+          serviceName: certbot-svc
+          servicePort: 80
+      - path: /
+        backend:
+          serviceName: {{ service_name }}-svc
+          servicePort: 80

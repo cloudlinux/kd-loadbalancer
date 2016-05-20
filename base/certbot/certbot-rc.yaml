@@ -1,0 +1,30 @@
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  name: certbot-rc
+  labels:
+    app: certbot
+    type: letsencrypt
+spec:
+  replicas: 1
+  selector:
+    app: certbot
+  template:
+    metadata:
+      labels:
+        app: certbot
+        type: letsencrypt
+    spec:
+      containers:
+      - image: prefer/certbot:0.36
+        imagePullPolicy: Always
+        name: certbot
+        ports:
+        - containerPort: 443
+        - containerPort: 80
+        volumeMounts:
+        - mountPath: /etc/letsencrypt/
+          name: certbot-storage
+      volumes:
+      - name: certbot-storage
+        emptyDir: {}

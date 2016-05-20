@@ -1,0 +1,7 @@
+PyYAML==3.11
+requests==2.10.0
+Jinja2==2.8
+
+bpython==0.15
+
+aiohttp==0.21.6

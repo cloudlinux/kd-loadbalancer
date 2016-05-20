@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  name: owncloud-rc
+  type: letsencrypt
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: {{ name }}
+        type: letsencrypt
+    spec:
+      containers:
+      - name: {{ name }}
+        image: owncloud
+        ports:
+        - containerPort: 80
