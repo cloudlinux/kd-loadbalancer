@@ -26,7 +26,6 @@ requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
 
 def create_base_rc():
-    # Create rc: nginx-controller and certbot
     rc = ReplicationController(namespace='default', config=config['apiserver'])
     for item in (
         ('base', 'nginx-controller', 'nginx-ingress-rc.yaml'),
@@ -37,7 +36,6 @@ def create_base_rc():
 
 
 def create_base_svc():
-    # Create certbot service
     svc = Service(namespace='default', config=config['apiserver'])
     for item in (
         ('base', 'certbot', 'certbot-svc.yaml'),
@@ -46,9 +44,8 @@ def create_base_svc():
             svc.create(yaml.load(f.read()))
 
 
-def create_goal_rc_and_svc(data):
+def create_main_rc_and_svc(data):
     for name in data['services']:
-        # Create rc and service for endpoint, for example owncloud
         rc = ReplicationController(namespace='default',
                                    config=config['apiserver'])
         with open(os.path.join('templates', 'rc-rule.yaml.j2'), 'r') as f:
@@ -62,18 +59,22 @@ def create_goal_rc_and_svc(data):
 
 
 def main(config):
+    # Create rc: nginx-controller and certbot
     create_base_rc()
+
+    # Create certbot service
     create_base_svc()
 
     # Create for fixtures
     with open(config['fixtures'], 'r') as f:
         data = json.loads(f.read())
 
-    create_goal_rc_and_svc(data)
+    # Create rc and service for endpoint, for example owncloud
+    create_main_rc_and_svc(data)
 
     input("Please enter when certbot rc will be running")
 
-    # sleep(10)  # Timeout for creating certbot-rc
+    # Create ingress rules, TLS certs and secrets
     create_ingress(data['ingress-rules'])
 
 

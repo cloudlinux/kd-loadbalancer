@@ -1,4 +1,4 @@
-# owncloud + trust TLS certs
+# Deploy owncloud with trust TLS cert from letsencrypt 
 
 ## Prerequisites
 * Kubernetes 1.2 or higher (TSL support for Ingress has been added in 1.2)
@@ -26,11 +26,16 @@ Where:
 
 After execution command you will see result in the `fixtures.json`
 
-## Running 
+### Change config and templates
 
 * Create config based on the config.yaml.template
 * Change templates (base/, templates/) if necessary
-* `(test-ingress) $ python3.5 main.py`
+
+## Running 
+
+```
+(test-ingress) $ python3.5 main.py
+```
 
 You should see something like:
 ```
@@ -82,6 +87,20 @@ Create Secret: "c-8318aed6-4-secret"
 Replace Ingress: "c-8318aed6-4-ingress"
   Success
 ```
+
+## Results
+
+After successful result without errors you could go to new subdomains:
+
+* http://c-8318aed6-0.cl-owncloud.pro/
+* http://c-8318aed6-1.cl-owncloud.pro/
+* http://c-8318aed6-2.cl-owncloud.pro/
+* http://c-8318aed6-3.cl-owncloud.pro/
+* http://c-8318aed6-4.cl-owncloud.pro/
+
+Redirect to https will be automatically.
+For a while as backend used only one owncloud pod for all domain.
+
 
 ## Troubleshooting
 
