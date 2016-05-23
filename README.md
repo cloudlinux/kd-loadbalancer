@@ -17,7 +17,7 @@ $ pip install -R REQUIREMENTS
 ### Generating fixtures
 
 ```
-(test-ingress) $ python 3.5 generate_fixtures.py c cl-owncloud.pro 5
+(test-ingress) $ python3.5 generate_fixtures.py c cl-owncloud.pro 5
 ```
 Where:
 * `c` - prefix for subdomain

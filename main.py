@@ -124,7 +124,7 @@ def create_secret(name, cert, private_key):
 
 async def fetch(session, url, data, seconds):
     await asyncio.sleep(seconds)
-    logger.debug('run generating cert via {} after {} sec'.format(
+    logger.debug('Run generating cert via {} after {} sec'.format(
         url, seconds))
 
     async with session.post(
