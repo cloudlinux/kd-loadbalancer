@@ -100,6 +100,7 @@ After successful result without errors you could go to new subdomains:
 
 Redirect to https will be automatically.
 For a while as backend used only one owncloud pod for all domain.
+If you use `staging: true` in the config you get untrusted TLS cert for domain.
 
 
 ## Troubleshooting
