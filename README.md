@@ -1,4 +1,4 @@
-# Deploy owncloud with trust TLS cert from letsencrypt 
+# owncloud + trust TLS certs
 
 ## Prerequisites
 * Kubernetes 1.2 or higher (TSL support for Ingress has been added in 1.2)
