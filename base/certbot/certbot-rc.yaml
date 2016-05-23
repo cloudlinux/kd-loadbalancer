@@ -4,7 +4,6 @@ metadata:
   name: certbot-rc
   labels:
     app: certbot
-    type: letsencrypt
 spec:
   replicas: 1
   selector:
@@ -13,7 +12,6 @@ spec:
     metadata:
       labels:
         app: certbot
-        type: letsencrypt
     spec:
       containers:
       - image: prefer/certbot:0.36

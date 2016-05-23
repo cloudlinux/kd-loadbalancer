@@ -4,7 +4,6 @@ metadata:
   name: certbot-svc
   labels:
     app: certbot
-    type: letsencrypt
 spec:
   ports:
   - port: 80
@@ -21,4 +20,3 @@ spec:
     name: test-server
   selector:
     app: certbot
-    type: letsencrypt

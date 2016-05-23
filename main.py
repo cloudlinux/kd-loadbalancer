@@ -2,11 +2,13 @@ import asyncio
 import json
 import logging
 import os
-from uuid import uuid4
+from json.decoder import JSONDecodeError
 
 import aiohttp
+import requests
 import yaml
 from jinja2 import Template
+from requests.packages.urllib3.exceptions import InsecureRequestWarning
 
 from k8s_client import Ingress, ReplicationController, Service, Secret
 
@@ -20,8 +22,10 @@ logging.getLogger("requests").setLevel(logging.WARNING)
 
 logger = logging.getLogger(__name__)
 
+requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
-def main(config):
+
+def create_base_rc():
     # Create rc: nginx-controller and certbot
     rc = ReplicationController(namespace='default', config=config['apiserver'])
     for item in (
@@ -31,6 +35,8 @@ def main(config):
         with open(os.path.join(*item), 'r') as f:
             rc.create(yaml.load(f.read()))
 
+
+def create_base_svc():
     # Create certbot service
     svc = Service(namespace='default', config=config['apiserver'])
     for item in (
@@ -39,10 +45,8 @@ def main(config):
         with open(os.path.join(*item), 'r') as f:
             svc.create(yaml.load(f.read()))
 
-    # Create for fixtures
-    with open(config['fixtures'], 'r') as f:
-        data = json.loads(f.read())
 
+def create_goal_rc_and_svc(data):
     for name in data['services']:
         # Create rc and service for endpoint, for example owncloud
         rc = ReplicationController(namespace='default',
@@ -56,8 +60,21 @@ def main(config):
             yaml_data = Template(f.read()).render({'name': name})
             svc.create(yaml.load(yaml_data))
 
+
+def main(config):
+    create_base_rc()
+    create_base_svc()
+
+    # Create for fixtures
+    with open(config['fixtures'], 'r') as f:
+        data = json.loads(f.read())
+
+    create_goal_rc_and_svc(data)
+
+    input("Please enter when certbot rc will be running")
+
     # sleep(10)  # Timeout for creating certbot-rc
-    create_ingress(data['ingress-rules'], email=config['email'])
+    create_ingress(data['ingress-rules'])
 
 
 # Create ingress rules
@@ -106,23 +123,31 @@ def create_secret(name, cert, private_key):
 
 async def fetch(session, url, data, seconds):
     await asyncio.sleep(seconds)
-    logger.debug('run generate cert via {} with {} sec'.format(url, seconds))
+    logger.debug('run generating cert via {} after {} sec'.format(
+        url, seconds))
+
     async with session.post(
         url,
         data=json.dumps(data),
-        headers={'content-type': 'application/json'}
+        headers={
+            'Content-type': 'application/json'
+        }
     ) as response:
         response = await response.text()
         return response
 
 
-def create_ingress(ingress_rules, email):
+def create_ingress(ingress_rules):
     loop = asyncio.get_event_loop()
 
     with aiohttp.ClientSession(loop=loop) as session:
         total = len(ingress_rules)
         # 2 sec delay between tasks  - experimental
         coefficient = 2 * total
+
+        additional_params = []
+        if config['certbot']['staging']:
+            additional_params.append('--staging')
 
         tasks = []
         for i, (name, host, service_name) in enumerate(ingress_rules):
@@ -131,7 +156,8 @@ def create_ingress(ingress_rules, email):
             tasks.append(asyncio.ensure_future(fetch(
                 session, 'http://{}/.certs/'.format(host), {
                     'domains': [host],
-                    'email': email,
+                    'email': config['certbot']['email'],
+                    'certbot-additional-params': additional_params
                 }, i * 1.0 / total * coefficient
             )))
 
@@ -140,30 +166,17 @@ def create_ingress(ingress_rules, email):
         )
         for i, task in enumerate(tasks):
             name, host, service_name = ingress_rules[i]
-            result = json.loads(task.result())
+            try:
+                result = json.loads(task.result())
+            except JSONDecodeError:
+                logger.error(task.result())
+                raise SystemExit("Certificates not generated")
             create_secret(
                 name,
                 cert=result['cert'],
                 private_key=result['private_key']
             )
             replace_ingress_rule(name, host, service_name)
-
-
-def create_fixtures(prefix, domain, n=1):
-    name = '{}-{}'.format(prefix, str(uuid4())[:8])
-    service = '{}-owncloud'.format(name)
-    data = {'services': [service], 'ingress-rules': [
-        [
-            "{}-{}".format(name, i),
-            "{}-{}.{}".format(name, i, domain),
-            service
-        ]
-        for i in range(n)]}
-
-    with open('fixtures.json', 'w') as f:
-        f.write(
-            json.dumps(data, sort_keys=True, indent=2, separators=(',', ': '))
-        )
 
 
 if __name__ == '__main__':

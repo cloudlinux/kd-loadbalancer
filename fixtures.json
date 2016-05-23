@@ -1,17 +1,32 @@
 {
   "ingress-rules": [
     [
-      "a-18daf306-0",
-      "a-18daf306-0.diveinto.ru",
-      "a-18daf306-owncloud"
+      "c-8318aed6-0",
+      "c-8318aed6-0.cl-owncloud.pro",
+      "c-8318aed6-owncloud"
     ],
     [
-      "a-18daf306-1",
-      "a-18daf306-1.diveinto.ru",
-      "a-18daf306-owncloud"
+      "c-8318aed6-1",
+      "c-8318aed6-1.cl-owncloud.pro",
+      "c-8318aed6-owncloud"
+    ],
+    [
+      "c-8318aed6-2",
+      "c-8318aed6-2.cl-owncloud.pro",
+      "c-8318aed6-owncloud"
+    ],
+    [
+      "c-8318aed6-3",
+      "c-8318aed6-3.cl-owncloud.pro",
+      "c-8318aed6-owncloud"
+    ],
+    [
+      "c-8318aed6-4",
+      "c-8318aed6-4.cl-owncloud.pro",
+      "c-8318aed6-owncloud"
     ]
   ],
   "services": [
-    "a-18daf306-owncloud"
+    "c-8318aed6-owncloud"
   ]
 }

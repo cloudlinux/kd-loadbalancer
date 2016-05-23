@@ -10,20 +10,26 @@ logger = logging.getLogger(__name__)
 class KubernetesClient(object):
     def __init__(self, config):
         self.server = config.get('server', 'http://localhost:8080/')
+        self.token = config.get('token')
 
     def _request(self, method, url_path, data):
         url = urljoin(self.server, url_path)
+        headers = {
+            'Content-Type': 'application/json'
+        }
+
+        if self.token:
+            headers['Authorization'] = 'Bearer {}'.format(self.token)
 
         if method == 'GET':
+
             response = requests.request(
-                method, url, params=data, headers={
-                    'Content-Type': 'application/json'
-                })
+                method, url, params=data, headers=headers,
+                verify=False)
         else:
             response = requests.request(
-                method, url, data=data, headers={
-                    'Content-Type': 'application/json'
-                })
+                method, url, data=data, headers=headers,
+                verify=False)
 
         result = json.loads(response.content.decode('utf-8'))
 
@@ -53,15 +59,12 @@ class KubernetesOperations(KubernetesClient):
         )
 
         logger.debug('{} {}: "{name}"'.format(
-            'POST',
+            'Create',
             self.__class__.__name__,
             **data.get('metadata', {'name': None})
         ))
 
         return self._request('POST', path, json.dumps(data))
-
-    def read(self):
-        pass
 
     def replace(self, name, data):
         path = self.path.format(
@@ -70,7 +73,7 @@ class KubernetesOperations(KubernetesClient):
         )
 
         logger.debug('{} {}: "{name}"'.format(
-            'PUT',
+            'Replace',
             self.__class__.__name__,
             **data.get('metadata', {'name': None})
         ))
@@ -78,12 +81,6 @@ class KubernetesOperations(KubernetesClient):
             'PUT',
             urljoin(path, name),
             json.dumps(data))
-
-    def delete(self):
-        pass
-
-    def partially_update(self):
-        pass
 
 
 class ReplicationController(KubernetesOperations):
@@ -96,20 +93,6 @@ class Service(KubernetesOperations):
 
 class Secret(KubernetesOperations):
     entity = 'secrets'
-
-
-class Namespace(KubernetesClient):
-    def read(self):
-        pass
-
-    def replace(self):
-        pass
-
-    def delete(self):
-        pass
-
-    def partially_update(self):
-        pass
 
 
 class Pod(KubernetesOperations):
@@ -131,25 +114,7 @@ class Pod(KubernetesOperations):
         })
 
 
-class ExecPod(KubernetesOperations):
-    path = '/api/v1/namespaces/{namespace}/pods/{name}/exec'
-
-    def __init__(self, pod, *args, **kwargs):
-        super(ExecPod, self).__init__(*args, **kwargs)
-        self.pod = pod
-
-    def execute(self, command=None):
-        path = self.path.format(
-            **{'namespace': self.namespace,
-               'name': self.pod}
-        )
-        return self._request('GET', path, {
-            'command': command
-        })
-
-
-# Extensions:
-
+# Extensions:§
 class Ingress(KubernetesOperations):
     entity = 'ingresses/'
     path = '/apis/extensions/v1beta1/namespaces/{namespace}/{entity}'
