@@ -109,7 +109,7 @@ If you use `staging: true` in the config you get untrusted TLS cert for domain.
 Dns on the pods from replicaset "certbot-rc" should be work. If you have this problem you can add nameserver manually:
 ```
 $ kubectl exec certbot-rc-ucc2x -it bash
-$ root@certbot-rc-as9bv:/opt/certbot# cat >> /etc/resolve.conf <<EOF
+$ root@certbot-rc-as9bv:/opt/certbot# cat >> /etc/resolv.conf <<EOF
 nameserver 8.8.8.8
 EOF
 ```
