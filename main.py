@@ -2,6 +2,7 @@ import asyncio
 import json
 import logging
 import os
+import time
 from json.decoder import JSONDecodeError
 
 import aiohttp
@@ -56,26 +57,6 @@ def create_main_rc_and_svc(data):
         with open(os.path.join('templates', 'svc-rule.yaml.j2'), 'r') as f:
             yaml_data = Template(f.read()).render({'name': name})
             svc.create(yaml.load(yaml_data))
-
-
-def main(config):
-    # Create rc: nginx-controller and certbot
-    create_base_rc()
-
-    # Create certbot service
-    create_base_svc()
-
-    # Create for fixtures
-    with open(config['fixtures'], 'r') as f:
-        data = json.loads(f.read())
-
-    # Create rc and service for endpoint, for example owncloud
-    create_main_rc_and_svc(data)
-
-    input("Please enter when certbot rc will be running")
-
-    # Create ingress rules, TLS certs and secrets
-    create_ingress(data['ingress-rules'])
 
 
 # Create ingress rules
@@ -162,9 +143,13 @@ def create_ingress(ingress_rules):
                 }, i * 1.0 / total * coefficient
             )))
 
+        begin_time = time.time()
         loop.run_until_complete(
             asyncio.wait(tasks)
         )
+        logger.debug("The tine spent for generating is {}".format(
+            round(time.time() - begin_time, 1)
+        ))
         for i, task in enumerate(tasks):
             name, host, service_name = ingress_rules[i]
             try:
@@ -180,7 +165,30 @@ def create_ingress(ingress_rules):
             replace_ingress_rule(name, host, service_name)
 
 
+def main():
+    # Create rc: nginx-controller and certbot
+    create_base_rc()
+
+    # Create certbot service
+    create_base_svc()
+
+    # Create for fixtures
+    with open(config['fixtures'], 'r') as f:
+        data = json.loads(f.read())
+
+    # Create rc and service for endpoint, for example owncloud
+    create_main_rc_and_svc(data)
+
+    input("Please enter when certbot rc will be running")
+
+    # Create ingress rules, TLS certs and secrets
+    create_ingress(data['ingress-rules'])
+
+    for _, host, _ in data['ingress-rules']:
+        logger.debug("Domain is ready - http://{}".format(host))
+
+
 if __name__ == '__main__':
     with open('config.yaml', 'r') as f:
         config = yaml.load(f.read())
-    main(config)
+    main()
