@@ -31,9 +31,9 @@ After execution command you will see result in the `fixtures.json`
 * Create config based on the config.yaml.template
 * Change templates (base/, templates/) if necessary
 
-### Supporting dynamic add dns records
+### Supporting dynamic way for creating dns records
 
-Supported:
+Supported plugins for:
 
 * amazon route53
 * cloudflare
