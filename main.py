@@ -1,4 +1,5 @@
 import asyncio
+import importlib
 import json
 import logging
 import os
@@ -11,7 +12,7 @@ import yaml
 from jinja2 import Template
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
 
-from k8s_client import Ingress, ReplicationController, Service, Secret
+from k8s_client import Ingress, ReplicationController, Service, Secret, Pod
 
 logging.basicConfig(
     format=u'%(levelname)-8s [%(asctime)s] %(message)s',
@@ -105,27 +106,44 @@ def create_secret(name, cert, private_key):
 
 async def fetch(session, url, data, seconds):
     await asyncio.sleep(seconds)
-    logger.debug('Run generating cert via {} after {} sec'.format(
-        url, seconds))
+    logger.debug('Run generating cert for {} after {} sec'.format(
+        data['domains'], seconds))
 
     async with session.post(
         url,
         data=json.dumps(data),
         headers={
-            'Content-type': 'application/json'
+            'Content-type': 'application/json',
+            # First host for ingress rules
+            'Host': data['domains'][0]
         }
     ) as response:
         response = await response.text()
         return response
 
 
+def create_or_update_dns_record(domain, new_ips):
+    if config.get('plugins') and config['plugins'].get('dns'):
+        dns_plugin = config['plugins']['dns']
+        name = dns_plugin['name']
+        module = importlib.import_module(
+            '.'.join(['plugins', name, 'entry']))
+        module.create_or_update_ip(domain, new_ips, **dns_plugin)
+
+
 def create_ingress(ingress_rules):
     loop = asyncio.get_event_loop()
 
+    # Get nginx pods for ips
+    pod = Pod(namespace='default', config=config['apiserver']).list(
+        'app=nginx-ingress'
+    )
+    ips = [po['status']['hostIP'] for po in pod['items']]
+
     with aiohttp.ClientSession(loop=loop) as session:
         total = len(ingress_rules)
-        # 2 sec delay between tasks  - experimental
-        coefficient = 2 * total
+        # 2 sec delay between cert generating - experimental
+        coefficient = 1 * total
 
         additional_params = []
         if config['certbot']['staging']:
@@ -135,8 +153,11 @@ def create_ingress(ingress_rules):
         for i, (name, host, service_name) in enumerate(ingress_rules):
             create_ingress_rule(name, host, service_name)
 
+            create_or_update_dns_record(host, ips)
+
             tasks.append(asyncio.ensure_future(fetch(
-                session, 'http://{}/.certs/'.format(host), {
+                # while certs generating on the first certbot pod
+                session, 'http://{}/.certs/'.format(ips[0]), {
                     'domains': [host],
                     'email': config['certbot']['email'],
                     'certbot-additional-params': additional_params
@@ -147,22 +168,32 @@ def create_ingress(ingress_rules):
         loop.run_until_complete(
             asyncio.wait(tasks)
         )
-        logger.debug("The tine spent for generating is {}".format(
+        logger.debug("The time spent for generating certs is {}".format(
             round(time.time() - begin_time, 1)
         ))
-        for i, task in enumerate(tasks):
-            name, host, service_name = ingress_rules[i]
+
+        responses = []
+        error = False
+        for task in tasks:
             try:
                 result = json.loads(task.result())
             except JSONDecodeError:
                 logger.error(task.result())
-                raise SystemExit("Certificates not generated")
-            create_secret(
-                name,
-                cert=result['cert'],
-                private_key=result['private_key']
-            )
-            replace_ingress_rule(name, host, service_name)
+                error = True
+            else:
+                responses.append(result)
+        if error:
+            raise SystemExit()
+
+    for i, response in enumerate(responses):
+        name, host, service_name = ingress_rules[i]
+
+        create_secret(
+            name,
+            cert=response['cert'],
+            private_key=response['private_key']
+        )
+        replace_ingress_rule(name, host, service_name)
 
 
 def main():

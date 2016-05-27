@@ -103,7 +103,7 @@ class Pod(KubernetesOperations):
             **{'namespace': self.namespace}
         )
         logger.debug('{} {}: "{}"'.format(
-            'GET',
+            'List',
             self.__class__.__name__,
             'list')
         )

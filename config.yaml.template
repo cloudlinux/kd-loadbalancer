@@ -1,19 +1,26 @@
 apiserver:
   # DEFAULT_TOKEN=$(kubectl get serviceaccount default -o jsonpath="{.secrets[0].name}")
   # TOKEN_VALUE=$(kubectl get secret "$DEFAULT_TOKEN" -o go-template="{{.data.token}}" | base64 -d)
+  # echo $TOKEN_VALUE
   # tests: curl -k -H "Authorization: Bearer $TOKEN_VALUE" https://95.164.68.175:6443
-  token: eyJhbGciOi1NiIsInCI6IkpXVCJ9.eyJpc3MiOiJrdWJlcm5lcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9uYW1lc3BhY2UiOiJkZWZhdWx0Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9zZWNyZXQubmFtZSI6ImRlZmF1bHQtdG9rZW4tNmE3bjEiLCJrdWJlcm5ldGVzLmlvL3NlcnZpY2VhY2NvdW50L3NlcnZpY2UtYWNjb3VudC5uYW1lIjoiZGVmYXVsdCIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VydmljZS1hY2NvdW50LnVpZCI6ImRmMzBiZTM1LTIwYmItMTFlNi05MTQzLTAyMDA1ZmE0NDRhZiIsInN1YiI6InN5c3RlbTpzZXJ2aWNlYWNjb3VudDpkZWZhdWx0OmRlZmF1bHQifQ.HfcBoDn9yc2ppaoivDxxqoIat7VSLOGJjKYctWvPKhIaNGxUOcjw4YG973IJt6tkK1q_mlx35IREFsOsUidZxCVpzomephQkv8yM6WlVErwNFUyqxjTqVmth8jzigkcmzHysmM2_Bhs3b5siyTD5LR_XGrHwKPfrmikHGzAMQrHapiNhkWgg05yFDr9oGkIc3-Mft5Le0Z-a0aDdwZnleTqAQbpFvTesdycQNp2CoCFdQ0DETEnyKTxp9zFPyo_bqFSIJF7QXl_qAAxr_V6ZXg5Zk6R3TEXJBtCh0DdHdYn-vtTNKkc_rqmu_STeN9qfMmv-vKrNiDH9gCRkhSUYag
+  token: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+  server: https://95.164.68.59:6443
 
-  # link to apiserver
-  server: https://95.164.68.175:6443
-
-
-# Fixtures, for generate see generate_fixtures.py
 fixtures: fixtures.json
 
 certbot:
-  # If true - generating TLS certs for tests. No any limits, but certs not trusted
   staging: true
-
-  # Email for generating
   email: ntelepenin@cloudlinux.com
+
+plugins:
+  dns:
+    # TODO: need to use aws-config for tokens
+#    name: aws_route53
+#    aws-access-key-id: XXXXXXXXXXXXXXX
+#    aws-secret-access-key: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+    # TODO: need to use global config https://github.com/danni/python-cloudflare/tree/python3ify#using-configuration-file-to-store-email-and-keys
+    name: cloudflare
+    email: telepenin.nikolay@gmail.com
+    token: XXXXXXXXXXXXXXXXXXXXXXXXX
+    certtoken: v1.0-XXXXXXXXXXXXXXXXXXXX-XXXXXXXXXXXXXXXXXXXX-XXXXXXXXXXXXXXX

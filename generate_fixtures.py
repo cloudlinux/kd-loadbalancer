@@ -1,11 +1,14 @@
 import json
+import random
+import string
 from uuid import uuid4
 
 import sys
 
 
-def create_fixtures(prefix, domain, n=1):
-    name = '{}-{}'.format(prefix, str(uuid4())[:8])
+def create_fixtures(domain, n=1):
+    name = ''.join(random.choice(string.ascii_lowercase)
+                   for _ in range(3))
     service = '{}-owncloud'.format(name)
     data = {'services': [service], 'ingress-rules': [
         [
@@ -21,4 +24,4 @@ def create_fixtures(prefix, domain, n=1):
         )
 
 if __name__ == '__main__':
-    create_fixtures(sys.argv[1], sys.argv[2], sys.argv[3])
+    create_fixtures(sys.argv[1], sys.argv[2])

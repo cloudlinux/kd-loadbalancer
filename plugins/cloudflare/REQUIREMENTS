@@ -1,0 +1,1 @@
+-e git+https://github.com/danni/python-cloudflare@python3ify#egg=python-cloudflare
