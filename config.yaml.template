@@ -2,15 +2,15 @@ apiserver:
   # DEFAULT_TOKEN=$(kubectl get serviceaccount default -o jsonpath="{.secrets[0].name}")
   # TOKEN_VALUE=$(kubectl get secret "$DEFAULT_TOKEN" -o go-template="{{.data.token}}" | base64 -d)
   # echo $TOKEN_VALUE
-  # tests: curl -k -H "Authorization: Bearer $TOKEN_VALUE" https://95.164.68.175:6443
+  # test: curl -k -H "Authorization: Bearer $TOKEN_VALUE" https://95.164.68.175:6443
   token: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-  server: https://95.164.68.59:6443
+  server: https://195.164.68.59:6443
 
 fixtures: fixtures.json
 
 certbot:
   staging: true
-  email: ntelepenin@cloudlinux.com
+  email: mail@example.com
 
 plugins:
   dns:
@@ -21,6 +21,6 @@ plugins:
 
     # TODO: need to use global config https://github.com/danni/python-cloudflare/tree/python3ify#using-configuration-file-to-store-email-and-keys
     name: cloudflare
-    email: telepenin.nikolay@gmail.com
+    email: mail@example.com
     token: XXXXXXXXXXXXXXXXXXXXXXXXX
     certtoken: v1.0-XXXXXXXXXXXXXXXXXXXX-XXXXXXXXXXXXXXXXXXXX-XXXXXXXXXXXXXXX

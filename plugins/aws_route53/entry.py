@@ -6,6 +6,16 @@ logger = logging.getLogger(__name__)
 
 
 def create_or_update_ip(domain, new_ips, **kwargs):
+    """
+    Create or update DNS record with type A for IP addresses of load
+    balancer
+
+    :param domain: New subdomain name in existing zone
+    :param new_ips: IP addresses of load balancer
+    :param kwargs: additional params such as aws-access-key-id and
+        aws-secret-access-key for access to AWS ROUTE 53
+    :return:
+    """
     assert isinstance(new_ips, list)
     conn = route53.connect(
         aws_access_key_id=kwargs['aws-access-key-id'],

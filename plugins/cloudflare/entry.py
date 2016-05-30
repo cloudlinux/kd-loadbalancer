@@ -6,6 +6,16 @@ logger = logging.getLogger(__name__)
 
 
 def create_or_update_ip(domain, new_ips, **kwargs):
+    """
+    Create or update DNS record with type A for IP addresses of load
+    balancer
+
+    :param domain: New subdomain name in existing zone
+    :param new_ips: IP addresses of load balancer
+    :param kwargs: additional params such as email and
+        token and certtoken for access to Cloudflare API
+    :return:
+    """
     kwargs.pop('name')
     cf = CloudFlare.CloudFlare(**kwargs)
     for zone in cf.zones.get():
