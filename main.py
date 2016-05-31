@@ -138,7 +138,7 @@ def create_ingress(ingress_rules):
     pod = Pod(namespace='default', config=config['apiserver']).list(
         'app=nginx-ingress'
     )
-    ips = [po['status']['hostIP'] for po in pod['items']]
+    ips = ['95.164.68.58']  # [po['status']['hostIP'] for po in pod['items']]
 
     with aiohttp.ClientSession(loop=loop) as session:
         total = len(ingress_rules)

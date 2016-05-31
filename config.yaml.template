@@ -14,13 +14,40 @@ certbot:
 
 plugins:
   dns:
-    # TODO: need to use aws-config for tokens
-#    name: aws_route53
-#    aws-access-key-id: XXXXXXXXXXXXXXX
-#    aws-secret-access-key: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 
-    # TODO: need to use global config https://github.com/danni/python-cloudflare/tree/python3ify#using-configuration-file-to-store-email-and-keys
-    name: cloudflare
-    email: mail@example.com
-    token: XXXXXXXXXXXXXXXXXXXXXXXXX
-    certtoken: v1.0-XXXXXXXXXXXXXXXXXXXX-XXXXXXXXXXXXXXXXXXXX-XXXXXXXXXXXXXXX
+#    # Example for cloudflare
+#    name: cloudflare
+#
+#    # Your email from settings cloudflare account
+#    email: yourmail@example.com
+#
+#    # Your token from settings cloudflare account
+#    token: #########################
+#
+#    # Your token from settings cloudflare account
+#    certtoken: v1.0-##################################################
+#
+####
+#
+#    # Example for AWS Route53
+#    name: aws_route53
+#
+#    # Your AWS access key id from AWS Identity and Access Management
+#    aws-access-key-id: ###########
+#
+#    # Your AWS secret access key from AWS Identity and Access Management
+#    aws-secret-access-key: ############################################
+#
+####
+#
+#    # Example for cPanel DNSONLY
+#    name: cpanel_dnsonly
+#
+#    # Your WHM DNSONLY host
+#    host: https://95.164.68.73:2087
+#
+#    # User for access to WHM DNSONLY via API
+#    user: root
+#
+#    # Access key for user
+#    token: ############################################

@@ -10,9 +10,9 @@ def create_or_update_ip(domain, new_ips, **kwargs):
     Create or update DNS record with type A for IP addresses of load
     balancer
 
-    :param domain: New subdomain name in existing zone
-    :param new_ips: IP addresses of load balancer
-    :param kwargs: additional params such as email and
+    :param str domain: New subdomain name in existing zone
+    :param list new_ips: IP addresses of load balancer
+    :param dict kwargs: additional params such as email and
         token and certtoken for access to Cloudflare API
     :return:
     """
@@ -23,13 +23,18 @@ def create_or_update_ip(domain, new_ips, **kwargs):
         if zone['name'] in domain:
             for dns_record in cf.zones.dns_records.get(zone['id']):
                 if domain == dns_record['name']:
-                    # cloudflare can attach only one ip address
+
                     if dns_record['content'] not in new_ips:
+                        # cloudflare can assign only one ip address
+                        # here you can use roundrobin for many ip addresses
                         new_ip = new_ips[0]
                         data = {
-                            # getting first ip
                             'content': new_ip,
-                            # https://github.com/danni/python-cloudflare/blob/python3ify/examples/example-create-zone-and-populate.py#L59
+                            # Requires other fields
+                            # https://github.com/danni/python-cloudflare/blob
+                            # /python3ify/examples
+                            # /example-create-zone-and-populate.py#L59
+
                             'type': dns_record['type'],
                             'name': dns_record['name']
                         }
@@ -55,10 +60,10 @@ def create_or_update_ip(domain, new_ips, **kwargs):
                     break
 
             else:
-                # cloudflare can attach only one ip address
+                # cloudflare can assign only one ip address
+                # here you can use roundrobin for many ip addresses
                 new_ip = new_ips[0]
                 data = {
-                    # getting first ip
                     'content': new_ip,
                     'type': 'A',
                     'name': domain
@@ -70,3 +75,7 @@ def create_or_update_ip(domain, new_ips, **kwargs):
                     'and ip "{ips}"'.format(
                         zone=zone['name'], domain=domain, ips=new_ips
                     ))
+            break
+    else:
+        raise ValueError("Zone for domain {} not found. "
+                         "Need to configure the zone".format(domain))
