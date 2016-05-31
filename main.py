@@ -138,14 +138,16 @@ def create_ingress(ingress_rules):
     pod = Pod(namespace='default', config=config['apiserver']).list(
         'app=nginx-ingress'
     )
-    ips = ['95.164.68.58']  # [po['status']['hostIP'] for po in pod['items']]
+    ips = [po['status']['hostIP'] for po in pod['items']]
 
     with aiohttp.ClientSession(loop=loop) as session:
         total = len(ingress_rules)
         # 2 sec delay between cert generating - experimental
         coefficient = 1 * total
 
-        additional_params = []
+        additional_params = [
+            '--keep-until-expiring'
+        ]
         if config['certbot']['staging']:
             additional_params.append('--staging')
 
