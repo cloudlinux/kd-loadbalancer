@@ -5,9 +5,32 @@ import route53
 logger = logging.getLogger(__name__)
 
 
-def create_or_update_ip(domain, new_ips, **kwargs):
+def delete_a_record(domain, **kwargs):
     """
-    Create or update DNS record with type A for IP addresses of load
+    Delete A record to domain
+
+    :param domain: domain which will have been deleted
+    :param dict kwargs: additional params such as email and
+        token and certtoken for access to Cloudflare API
+    :return: None
+    """
+    kwargs.pop('name')
+    conn = route53.connect(
+        aws_access_key_id=kwargs['aws-access-key-id'],
+        aws_secret_access_key=kwargs['aws-secret-access-key'])
+
+    for zone in conn.list_hosted_zones():
+        # [:-1] without end point
+        if zone.name[:-1] in domain:
+            for dns_record in zone.record_sets:
+
+                if domain == dns_record.name[:-1]:
+                    dns_record.delete()
+
+
+def create_or_update_a_record(domain, new_ips, **kwargs):
+    """
+    Create or update A record for IP addresses of load
     balancer
 
     :param str domain: New subdomain name in existing zone

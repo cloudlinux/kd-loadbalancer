@@ -105,18 +105,18 @@ class Record:
     def add(self):
         new_info = self.info.copy()
         new_info['domain'] = self.zone_name
-        self.connect.post('addzonerecord', data=new_info)
+        return self.connect.post('addzonerecord', data=new_info)
 
     def edit(self):
         new_info = self.info.copy()
         new_info['domain'] = self.zone_name
-        self.connect.post('editzonerecord', data=new_info)
+        return self.connect.post('editzonerecord', data=new_info)
 
     def delete(self):
         assert self.zone_name, "Domain name should be define"
         assert self.info['Line'], "Line should be define"
 
-        self.connect.post('removezonerecord', data={
+        return self.connect.post('removezonerecord', data={
             'zone': self.zone_name,
             'line': self.info['Line']
         })

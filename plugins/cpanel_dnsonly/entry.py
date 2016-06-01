@@ -5,9 +5,29 @@ from .dnsonly_client import API
 logger = logging.getLogger(__name__)
 
 
-def create_or_update_ip(domain, new_ips, **kwargs):
+def delete_a_record(domain, **kwargs):
     """
-    Create or update DNS record with type A for IP addresses of load
+    Delete A record to domain
+
+    :param domain: domain which will have been deleted
+    :param dict kwargs: additional params such as email and
+        token and certtoken for access to Cloudflare API
+    :return: None
+    """
+    kwargs.pop('name')
+    api = API(**kwargs)
+    for zone in api.zones():
+
+        if zone.name in domain:
+            for dns_record in zone.records():
+                # dns record without end point
+                if dns_record.type == 'A' and domain == dns_record.name[:-1]:
+                    dns_record.delete()
+
+
+def create_or_update_a_record(domain, new_ips, **kwargs):
+    """
+    Create or update A record for IP addresses of load
     balancer
 
     :param str domain: New subdomain name in existing zone

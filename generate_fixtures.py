@@ -1,7 +1,6 @@
 import json
 import random
 import string
-from uuid import uuid4
 
 import sys
 
@@ -22,6 +21,7 @@ def create_fixtures(domain, n=1):
         f.write(
             json.dumps(data, sort_keys=True, indent=2, separators=(',', ': '))
         )
+
 
 if __name__ == '__main__':
     create_fixtures(sys.argv[1], sys.argv[2])

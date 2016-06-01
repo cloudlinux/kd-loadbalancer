@@ -82,13 +82,28 @@ It should be python package in the plugins folder with three files:
 * `REQUIREMENTS` - required if you have additional dependencies. Dependencies 
 should be installed manually.
 
-`entry.py` also should contains `create_or_update_ip` function for create or 
-update existing DNS records with A type. Params `create_or_update_ip`:
+`entry.py` also should contains `create_or_update_a_record` and 
+ `delete_a_record` functions. 
 
-* *domain* - type `str` - new subdomain name in the existing zone
-* *new_ips* - type `list` - list of IP-addresses for load balancer
-* *kwargs* - type `dict` - key-word arguments, additional params from config file, like credentional for access to
-API
+* `create_or_update_a_record` - Function for to create A record or update A 
+record if record with same domain exists and pointing domain to list of 
+IP addresses.
+
+    Params of `create_or_update_a_record`:
+    
+    * *domain* - type `str` - new subdomain name in the existing zone
+    * *new_ips* - type `list` - list of IP-addresses for load balancer
+    * *kwargs* - type `dict` - key-word arguments, additional params from config 
+    file, like credentional for access to API
+
+
+* `delete_a_record` - function for remove A record from DNS zone.
+
+    Params of `delete_a_record`:
+    
+    * *domain* - type `str` - subdomain which will have been deleted
+    * *kwargs* - type `dict` - key-word arguments, additional params from config 
+    file, like credentional for access to API
 
 All examples you can take a look in `aws_route53`, `cloudflare` 
 or `cpanel_dnsonly` plugins.

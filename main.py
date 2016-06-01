@@ -105,7 +105,7 @@ def create_secret(name, cert, private_key):
 
 
 async def fetch(session, url, data, seconds):
-    await asyncio.sleep(seconds)
+    # await asyncio.sleep(seconds)
     logger.debug('Run generating cert for {} after {} sec'.format(
         data['domains'], seconds))
 
@@ -128,7 +128,7 @@ def create_or_update_dns_record(domain, new_ips):
         name = dns_plugin['name']
         module = importlib.import_module(
             '.'.join(['plugins', name, 'entry']))
-        module.create_or_update_ip(domain, new_ips, **dns_plugin)
+        module.create_or_update_a_record(domain, new_ips, **dns_plugin)
 
 
 def create_ingress(ingress_rules):
@@ -143,7 +143,7 @@ def create_ingress(ingress_rules):
     with aiohttp.ClientSession(loop=loop) as session:
         total = len(ingress_rules)
         # 2 sec delay between cert generating - experimental
-        coefficient = 1 * total
+        coefficient = 0.5 * total
 
         additional_params = [
             '--keep-until-expiring'
@@ -152,6 +152,7 @@ def create_ingress(ingress_rules):
             additional_params.append('--staging')
 
         tasks = []
+        loadbalancer_ip = ips[0]
         for i, (name, host, service_name) in enumerate(ingress_rules):
             create_ingress_rule(name, host, service_name)
 
@@ -159,16 +160,30 @@ def create_ingress(ingress_rules):
 
             tasks.append(asyncio.ensure_future(fetch(
                 # while certs generating on the first certbot pod
-                session, 'http://{}/.certs/'.format(ips[0]), {
+                session, 'http://{}/.certs/'.format(loadbalancer_ip), {
                     'domains': [host],
                     'email': config['certbot']['email'],
                     'certbot-additional-params': additional_params
                 }, i * 1.0 / total * coefficient
             )))
 
+            if len(tasks) == 1:
+                # Delay for correctly creating dns record
+                time.sleep(5)
+
+                # Wait first for create account
+                loop.run_until_complete(
+                    tasks[0]
+                )
+
+        # Delay for correctly creating dns records
+        time.sleep(5)
+
         begin_time = time.time()
+
+        # Wait other with ready account
         loop.run_until_complete(
-            asyncio.wait(tasks)
+            asyncio.wait(tasks[1:])
         )
         logger.debug("The time spent for generating certs is {}".format(
             round(time.time() - begin_time, 1)
@@ -224,4 +239,10 @@ def main():
 if __name__ == '__main__':
     with open('config.yaml', 'r') as f:
         config = yaml.load(f.read())
+
+    begin_time = time.time()
     main()
+
+    logger.debug("All working time is {}".format(
+        round(time.time() - begin_time, 1)
+    ))
